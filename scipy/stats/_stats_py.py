@@ -49,7 +49,7 @@ import scipy.special as special
 # Import unused here but needs to stay until end of deprecation periode
 # See https://github.com/scipy/scipy/issues/15765#issuecomment-1875564522
 from scipy import linalg  # noqa: F401
-from . import distributions
+from . import distributions, ecdf
 from . import _mstats_basic as mstats_basic
 
 from ._stats_mstats_common import _find_repeats, theilslopes, siegelslopes
@@ -7470,8 +7470,8 @@ def _compute_dplus(cdfvals, x):
         - The location at which the maximum is reached.
 
     """
-    n = len(cdfvals)
-    dplus = (np.arange(1.0, n + 1) / n - cdfvals)
+    ecdfvals = ecdf(x).cdf(x)
+    dplus = (ecdfvals - cdfvals)
     amax = dplus.argmax()
     loc_max = x[amax]
     return (dplus[amax], loc_max)
@@ -7493,8 +7493,8 @@ def _compute_dminus(cdfvals, x):
         - Maximum distance of the CDF values above Uniform(0, 1)
         - The location at which the maximum is reached.
     """
-    n = len(cdfvals)
-    dminus = (cdfvals - np.arange(0.0, n)/n)
+    ecdfvals = ecdf(x).cdf(x)
+    dminus = (cdfvals - ecdfvals)
     amax = dminus.argmax()
     loc_max = x[amax]
     return (dminus[amax], loc_max)

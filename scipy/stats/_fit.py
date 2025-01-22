@@ -1226,22 +1226,22 @@ def _anderson_darling(dist, data, axis):
     return -n - S
 
 
-def _compute_dplus(cdfvals):  # adapted from _stats_py before gh-17062
-    n = cdfvals.shape[-1]
-    return (np.arange(1.0, n + 1) / n - cdfvals).max(axis=-1)
+def _compute_dplus(x, cdfvals):  # adapted from _stats_py before gh-17062
+    ecdfvals = stats.ecdf(x).cdf(x)
+    return (ecdfvals - cdfvals).max(axis=-1)
 
 
-def _compute_dminus(cdfvals):
-    n = cdfvals.shape[-1]
-    return (cdfvals - np.arange(0.0, n)/n).max(axis=-1)
+def _compute_dminus(x, cdfvals):
+    ecdfvals = stats.ecdf(x).cdf(x)
+    return (cdfvals - ecdfvals).max(axis=-1)
 
 
 def _kolmogorov_smirnov(dist, data, axis=-1):
     x = np.sort(data, axis=axis)
     cdfvals = dist.cdf(x)
     cdfvals = np.moveaxis(cdfvals, axis, -1)
-    Dplus = _compute_dplus(cdfvals)  # always works along last axis
-    Dminus = _compute_dminus(cdfvals)
+    Dplus = _compute_dplus(x, cdfvals)  # always works along last axis
+    Dminus = _compute_dminus(x, cdfvals)
     return np.maximum(Dplus, Dminus)
 
 
